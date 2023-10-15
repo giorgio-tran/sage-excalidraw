@@ -1,3 +1,4 @@
+import { CursorArrowRaysIcon, StopIcon } from "@heroicons/react/20/solid";
 import { useEffect, useRef, useState } from "react";
 import rough from "roughjs";
 import { Drawable } from "roughjs/bin/core";
@@ -34,17 +35,20 @@ function createElement(
   }
 }
 
-const getElementAtPosition = (x: number, y: number, elements: ElementType[]) => {
-  return elements.find(element => isWithinElement(x, y, element));
-
-}
+const getElementAtPosition = (
+  x: number,
+  y: number,
+  elements: ElementType[]
+) => {
+  return elements.find((element) => isWithinElement(x, y, element));
+};
 
 /**
  * Gets the existing mouse position, and checks if it is within the drawn element
- * @param x 
- * @param y 
- * @param element 
- * @returns 
+ * @param x
+ * @param y
+ * @param element
+ * @returns
  */
 const isWithinElement = (x: number, y: number, element: ElementType) => {
   const { x1, x2, y1, y2, shape } = element;
@@ -62,26 +66,28 @@ const isWithinElement = (x: number, y: number, element: ElementType) => {
     const offset = distance(a, b) - (distance(a, c) + distance(b, c));
     return Math.abs(offset) < 1;
   }
-}
+};
 
 /**
  * Distance formula
- * @param a 
- * @param b 
- * @returns 
+ * @param a
+ * @param b
+ * @returns
  */
-const distance = (a: { x: number; y: number }, b: { x: number; y: number }) => { 
+const distance = (a: { x: number; y: number }, b: { x: number; y: number }) => {
   const dx = a.x - b.x;
   const dy = a.y - b.y;
   return Math.sqrt(dx * dx + dy * dy);
-}
+};
 
 function App() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [action, setAction] = useState("none");
   const [elements, setElements] = useState<ElementType[]>([]);
   const [tool, setToolType] = useState<ToolType | null>(null);
-  const [selectedElement, setSelectedElement] = useState<ElementType | null>(null);
+  const [selectedElement, setSelectedElement] = useState<ElementType | null>(
+    null
+  );
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -95,21 +101,14 @@ function App() {
     );
   }, [elements]);
 
-  const updateElement = ({id, x1, y1, x2, y2, shape}: ElementType) => {
+  const updateElement = ({ id, x1, y1, x2, y2, shape }: ElementType) => {
     console.log(id, x1, y1, x2, y2, shape);
-    const updatedElement = createElement(
-      id,
-      x1,
-      y1,
-      x2,
-      y2,
-      shape as ToolType
-    );
+    const updatedElement = createElement(id, x1, y1, x2, y2, shape as ToolType);
     const elementsCopy = [...elements];
     elementsCopy[id] = updatedElement as ElementType;
     setElements(elementsCopy);
     console.log(x2, y2);
-  }
+  };
   // MOUSE EVENTS
   const handleMouseDown = (event: React.MouseEvent<HTMLCanvasElement>) => {
     if (!tool) return;
@@ -121,10 +120,9 @@ function App() {
         // calculate the offset to that drawn elements 0,0 position doesn't jump to mouse
         const offsetX = clientX - element.x1;
         const offsetY = clientY - element.y1;
-        setSelectedElement({...element, offset: { x: offsetX, y: offsetY }});
+        setSelectedElement({ ...element, offset: { x: offsetX, y: offsetY } });
         setAction("moving");
       }
-
     } else {
       const id = elements.length;
       const element = createElement(
@@ -155,12 +153,13 @@ function App() {
         y1: y1,
         x2: clientX,
         y2: clientY,
-        shape: tool as ToolType
+        shape: tool as ToolType,
       });
     }
 
     if (action === "moving") {
-      const {id, x1, y1, x2, y2, shape, offset} = selectedElement as ElementType;
+      const { id, x1, y1, x2, y2, shape, offset } =
+        selectedElement as ElementType;
       const width = x2 - x1;
       const height = y2 - y1;
       const offsetX = offset?.x ?? 0;
@@ -173,7 +172,7 @@ function App() {
         y1: mousePositionY,
         x2: mousePositionX + width,
         y2: mousePositionY + height,
-        shape: shape as ToolType
+        shape: shape as ToolType,
       });
     }
   };
@@ -185,32 +184,40 @@ function App() {
 
   return (
     <div>
-      <div style={{ position: "fixed", padding: "20px" }}>
+      <div className="menu">
         <button
+          className="tools"
           style={{
-            backgroundColor: `${tool === "selection" ? "red" : ""}`,
+            backgroundColor: `${tool === "selection" ? "#49b265" : ""}`,
+            color: `${tool === "selection" ? "white" : ""}`,
           }}
           onClick={() => setToolType("selection")}
         >
-          Selection
+          <CursorArrowRaysIcon height="22px" strokeWidth={1} />
         </button>
         <button
+          className="tools"
           style={{
-            backgroundColor: `${tool === "rectangle" ? "red" : ""}`,
+            backgroundColor: `${tool === "rectangle" ? "#49b265" : ""}`,
+            color: `${tool === "rectangle" ? "white" : ""}`,
           }}
           onClick={() => {
             setToolType("rectangle");
           }}
         >
-          Rectangle
+          <StopIcon height="22px" strokeWidth={1} className="svg" />
         </button>
         <button
-          style={{ backgroundColor: `${tool === "line" ? "red" : ""}` }}
+          className="tools"
+          style={{
+            backgroundColor: `${tool === "line" ? "#49b265" : ""}`,
+            color: `${tool === "line" ? "white" : ""}`,
+          }}
           onClick={() => {
             setToolType("line");
           }}
         >
-          Line
+          &#9135;
         </button>
       </div>
       <canvas
